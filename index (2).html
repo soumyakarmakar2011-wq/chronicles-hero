@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Chronicles of India — An Interactive Journey</title>
+<meta name="description" content="An interactive journey through five thousand years of Indian civilization.">
+<meta name="theme-color" content="#06070A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Marcellus&family=Manrope:wght@300;400;500;600;700&family=Noto+Serif+Devanagari:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#06070A;
+    --navy:#0B1020;
+    --gold:#C9A14A;
+    --gold-light:#E0C079;
+    --ivory:#F8F5EF;
+    --bronze:#8C5A3C;
+    --emerald:#0E3B2E;
+    --font-display:'Cormorant', serif;
+    --font-label:'Marcellus', serif;
+    --font-ui:'Manrope', sans-serif;
+    --font-dev:'Noto Serif Devanagari', serif;
+    --vedic-accent:#D4762A;
+    --vedic-accent-light:#E8A055;
+    --maha-accent:#50A0DC;
+    --maha-accent-light:#80C0F0;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--black);
+    color:var(--ivory);
+    font-family:var(--font-ui);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; border:none; background:none; cursor:pointer; color:inherit; }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--gold-light);
+    outline-offset:4px;
+    border-radius:4px;
+  }
+
+  /* ===================== ATMOSPHERE LAYERS ===================== */
+  .stars{
+    position:fixed; inset:0; width:2px; height:2px;
+    border-radius:50%; background:transparent;
+    z-index:0; pointer-events:none;
+    animation:twinkle 7s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle{ from{ opacity:0.7; } to{ opacity:1; } }
+
+  .fog{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    overflow:hidden;
+  }
+  .fog span{
+    position:absolute; border-radius:50%; filter:blur(70px);
+    opacity:0.5; mix-blend-mode:screen;
+  }
+  .fog .f1{
+    width:60vw; height:60vw; left:-15vw; top:-10vh;
+    background:radial-gradient(circle, var(--navy), transparent 70%);
+    animation:drift1 50s ease-in-out infinite alternate;
+  }
+  .fog .f2{
+    width:50vw; height:50vw; right:-10vw; bottom:-15vh;
+    background:radial-gradient(circle, var(--bronze), transparent 70%);
+    opacity:0.22;
+    animation:drift2 60s ease-in-out infinite alternate;
+  }
+  .fog .f3{
+    width:40vw; height:40vw; left:30vw; top:20vh;
+    background:radial-gradient(circle, var(--emerald), transparent 75%);
+    opacity:0.15;
+    animation:drift1 70s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes drift1{ from{ transform:translate(0,0) scale(1); } to{ transform:translate(5vw,4vh) scale(1.15); } }
+  @keyframes drift2{ from{ transform:translate(0,0) scale(1); } to{ transform:translate(-4vw,-6vh) scale(1.1); } }
+
+  .light-rays{
+    position:fixed; inset:0; z-index:2; pointer-events:none;
+    opacity:0.16; mix-blend-mode:overlay;
+    background:conic-gradient(from 0deg at 50% 30%,
+      transparent 0deg, var(--gold) 8deg, transparent 20deg,
+      transparent 100deg, var(--gold) 108deg, transparent 120deg,
+      transparent 220deg, var(--gold) 228deg, transparent 240deg,
+      transparent 340deg, var(--gold) 348deg, transparent 360deg);
+    -webkit-mask-image:radial-gradient(circle at 50% 30%, black, transparent 72%);
+    mask-image:radial-gradient(circle at 50% 30%, black, transparent 72%);
+    animation:spin 140s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  #bg-canvas{ position:fixed; inset:0; z-index:3; display:block; }
+
+
+
+  @media (prefers-reduced-motion: reduce){
+    .stars, .fog span, .light-rays{ animation:none !important; }
+  }
+
+  /* ===================== GLASS NAV ===================== */
+  .nav-wrap{
+    position:fixed; top:24px; left:0; right:0; z-index:50;
+    display:flex; justify-content:center; padding:0 20px;
+  }
+  .glass-nav{
+    width:100%; max-width:940px;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:24px; padding:14px 22px;
+    background:rgba(248,245,239,0.05);
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:999px;
+    backdrop-filter:blur(20px) saturate(160%);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    box-shadow:0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .nav-mark{ display:flex; align-items:center; gap:10px; }
+  .nav-mark svg{ width:22px; height:22px; flex-shrink:0; }
+  .nav-mark span{
+    font-family:var(--font-label); letter-spacing:0.12em; font-size:13px;
+    text-transform:uppercase; color:var(--ivory);
+  }
+  .nav-links{ display:flex; gap:28px; list-style:none; }
+  .nav-links a{
+    font-size:13px; letter-spacing:0.04em; color:rgba(248,245,239,0.72);
+    transition:color 0.25s ease;
+  }
+  .nav-links a:hover{ color:var(--gold-light); }
+  @media (max-width:680px){ .nav-links{ display:none; } }
+
+  /* ===================== HERO ===================== */
+  .hero{
+    position:relative; min-height:100vh; z-index:10;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:0 24px;
+  }
+  .sanskrit-float{
+    position:absolute; font-family:var(--font-dev);
+    color:rgba(201,161,74,0.16); user-select:none; pointer-events:none;
+    white-space:nowrap;
+  }
+  .sanskrit-float.s1{ top:18%; left:8%; font-size:clamp(20px,3vw,38px); animation:float1 14s ease-in-out infinite; }
+  .sanskrit-float.s2{ bottom:16%; right:6%; font-size:clamp(18px,2.6vw,32px); animation:float2 16s ease-in-out infinite; }
+  @keyframes float1{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-18px); } }
+  @keyframes float2{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(16px); } }
+  @media (prefers-reduced-motion: reduce){ .sanskrit-float{ animation:none !important; } }
+  @media (max-width:680px){ .sanskrit-float{ display:none; } }
+
+  .hero-content{ max-width:780px; }
+  .eyebrow{
+    font-family:var(--font-dev); font-size:14px; letter-spacing:0.08em;
+    color:var(--gold-light); margin-bottom:22px; opacity:0.9;
+  }
+  .hero-title{
+    font-family:var(--font-display); font-weight:500;
+    font-size:clamp(48px, 9vw, 108px); line-height:1.04;
+    letter-spacing:-0.01em; color:var(--ivory);
+  }
+  .line-mask{ overflow:hidden; display:block; }
+  .line{ display:block; }
+  .hero-sub{
+    margin:26px auto 0; max-width:520px;
+    font-size:16px; line-height:1.6; color:rgba(248,245,239,0.68);
+    font-weight:300;
+  }
+  .cta-glass{
+    margin-top:42px; display:inline-flex; align-items:center; gap:10px;
+    padding:16px 32px; border-radius:999px;
+    background:rgba(201,161,74,0.1);
+    border:1px solid rgba(201,161,74,0.4);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    font-family:var(--font-label); letter-spacing:0.06em; font-size:14px;
+    color:var(--gold-light);
+    box-shadow:0 0 0 0 rgba(201,161,74,0.0);
+    transition:box-shadow 0.4s ease, background 0.4s ease, border-color 0.4s ease;
+  }
+  .cta-glass:hover{
+    background:rgba(201,161,74,0.18);
+    border-color:rgba(201,161,74,0.7);
+    box-shadow:0 0 40px rgba(201,161,74,0.25);
+  }
+  .cta-glass svg{ width:16px; height:16px; transition:transform 0.3s ease; }
+  .cta-glass:hover svg{ transform:translateX(4px); }
+
+  .scroll-cue{
+    position:absolute; bottom:38px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+  .scroll-cue span{
+    font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:rgba(248,245,239,0.45);
+  }
+  .scroll-line{
+    width:1px; height:36px; background:linear-gradient(to bottom, rgba(201,161,74,0.7), transparent);
+    animation:scrollline 2.4s ease-in-out infinite;
+  }
+  @keyframes scrollline{ 0%{ transform:scaleY(0.3); opacity:0.4; } 50%{ transform:scaleY(1); opacity:1; } 100%{ transform:scaleY(0.3); opacity:0.4; } }
+
+  /* ===================== TEASER / NEXT CHAPTER ===================== */
+  .teaser{
+    position:relative; z-index:10; min-height:70vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:120px 24px;
+  }
+  .teaser-inner{ max-width:620px; text-align:center; }
+  .teaser-era{
+    display:inline-block; font-family:var(--font-label); font-size:13px;
+    letter-spacing:0.2em; color:var(--gold-light); margin-bottom:16px;
+  }
+  .teaser h2{
+    font-family:var(--font-display); font-weight:500;
+    font-size:clamp(32px,5vw,52px); color:var(--ivory); margin-bottom:8px;
+  }
+  .teaser-date{
+    font-size:13px; letter-spacing:0.06em; color:rgba(248,245,239,0.5);
+    margin-bottom:22px; font-family:var(--font-label);
+  }
+  .teaser-text{
+    font-size:16px; line-height:1.7; color:rgba(248,245,239,0.7);
+    font-weight:300; margin-bottom:30px;
+  }
+  .teaser-next{
+    display:inline-block; font-size:12px; letter-spacing:0.08em;
+    color:rgba(248,245,239,0.4); border-top:1px solid rgba(255,255,255,0.1);
+    padding-top:18px;
+  }
+
+  /* ===================== CHAPTER ENTRY STRIP ===================== */
+  .chapter-entry{
+    position:relative; z-index:10; display:flex; align-items:center; gap:20px;
+    padding:0 clamp(24px,7vw,100px); margin:0 0 0;
+  }
+  .chapter-line{ flex:1; height:1px; background:linear-gradient(to right, transparent, rgba(201,161,74,0.35), transparent); }
+  .chapter-label{
+    font-family:var(--font-label); font-size:12px; letter-spacing:0.28em;
+    color:rgba(201,161,74,0.65); text-transform:uppercase; white-space:nowrap;
+    padding:0 8px;
+  }
+
+  /* ===================== ERA WRAPPER ===================== */
+  .era{
+    position:relative; z-index:10;
+    padding:0 0 80px;
+  }
+
+  /* ===================== ERA HERO ===================== */
+  .era-hero{
+    position:relative; min-height:90vh;
+    display:flex; align-items:center; justify-content:flex-start;
+    padding:100px clamp(24px,8vw,110px);
+    overflow:hidden;
+  }
+  @media(max-width:680px){
+    .era-hero{ padding:80px 24px; }
+  }
+  .era-hero-copy{
+    position:relative; z-index:2; max-width:540px;
+  }
+  .era-period{
+    font-family:var(--font-label); font-size:13px; letter-spacing:0.18em;
+    color:var(--gold-light); margin-bottom:16px;
+  }
+  .era-title{
+    font-family:var(--font-display); font-weight:500;
+    font-size:clamp(40px, 7vw, 84px); line-height:1.08; color:var(--ivory);
+    margin-bottom:22px;
+  }
+  .era-tagline{
+    font-size:clamp(16px,2vw,20px); line-height:1.6; color:rgba(248,245,239,0.7);
+    font-weight:300; max-width:440px;
+  }
+  .era-hero-decoration{
+    position:absolute; bottom:40px; right:clamp(24px,6vw,80px); z-index:2;
+  }
+  .deco-script{
+    font-family:var(--font-dev); font-size:18px; letter-spacing:0.06em;
+    color:rgba(201,161,74,0.28);
+  }
+
+  /* ===================== STATS ROW ===================== */
+  .stats-row{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:2px;
+    padding:0 clamp(24px,5vw,80px); margin-bottom:90px;
+  }
+  @media(max-width:860px){ .stats-row{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:480px){ .stats-row{ grid-template-columns:1fr; } }
+  .stat-card{
+    background:rgba(248,245,239,0.03);
+    border:1px solid rgba(255,255,255,0.07);
+    padding:36px 28px;
+    display:flex; flex-direction:column; gap:8px;
+    transition:background 0.3s ease, border-color 0.3s ease;
+  }
+  .stat-card:hover{
+    background:rgba(201,161,74,0.06);
+    border-color:rgba(201,161,74,0.22);
+  }
+  .stat-num{
+    font-family:var(--font-display); font-size:clamp(36px,4.5vw,52px);
+    font-weight:400; color:var(--gold-light); line-height:1;
+  }
+  .stat-label{ font-size:13px; color:rgba(248,245,239,0.55); line-height:1.45; font-weight:300; }
+
+  /* ===================== ERA BODY 2-COL ===================== */
+  .era-body{
+    display:grid; grid-template-columns:1fr 1fr; gap:80px;
+    padding:0 clamp(24px,7vw,110px); margin-bottom:100px;
+  }
+  @media(max-width:860px){ .era-body{ grid-template-columns:1fr; gap:60px; } }
+
+  .era-section-eyebrow{
+    font-family:var(--font-label); font-size:11px; letter-spacing:0.3em;
+    color:var(--gold); text-transform:uppercase; margin-bottom:14px; display:block;
+  }
+  .era-section-title{
+    font-family:var(--font-display); font-weight:500;
+    font-size:clamp(24px,3vw,34px); color:var(--ivory); margin-bottom:28px; line-height:1.22;
+  }
+  .era-prose{
+    font-size:16px; line-height:1.78; color:rgba(248,245,239,0.72);
+    font-weight:300; margin-bottom:22px;
+  }
+
+  .pull-quote{
+    border-left:none; position:relative; padding:28px 24px 28px 32px;
+    margin:32px 0; background:rgba(201,161,74,0.05);
+    border:1px solid rgba(201,161,74,0.14);
+    border-radius:4px;
+  }
+  .pull-bar{
+    position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:linear-gradient(to bottom, var(--gold), var(--bronze));
+    border-radius:0 3px 3px 0;
+  }
+  .pull-quote blockquote{
+    font-family:var(--font-display); font-size:19px; font-style:italic;
+    color:var(--ivory); line-height:1.55; margin-bottom:12px;
+  }
+  .pull-quote cite{ font-size:12px; color:rgba(248,245,239,0.45); letter-spacing:0.04em; }
+
+  /* SITES LIST */
+  .sites-list{ display:flex; flex-direction:column; gap:2px; }
+  .site-card{
+    padding:22px 22px; background:rgba(248,245,239,0.03);
+    border:1px solid rgba(255,255,255,0.07); border-radius:0;
+    transition:background 0.25s, border-color 0.25s;
+    cursor:default;
+  }
+  .site-card:hover, .site-card:focus{
+    background:rgba(201,161,74,0.07); border-color:rgba(201,161,74,0.22);
+    outline:none;
+  }
+  .site-header{ display:flex; align-items:flex-start; gap:14px; margin-bottom:8px; }
+  .site-icon{ font-size:18px; color:var(--gold); line-height:1; margin-top:2px; flex-shrink:0; }
+  .site-name{ font-family:var(--font-display); font-size:21px; font-weight:500; color:var(--ivory); line-height:1.2; }
+  .site-loc{ font-size:11px; letter-spacing:0.06em; color:rgba(248,245,239,0.45); }
+  .site-desc{ font-size:14px; line-height:1.65; color:rgba(248,245,239,0.6); padding-left:32px; font-weight:300; }
+
+  /* ===================== DISCOVERIES TIMELINE ===================== */
+  .discoveries{
+    padding:80px clamp(24px,7vw,110px); border-top:1px solid rgba(255,255,255,0.06);
+    margin-bottom:80px;
+  }
+  .discoveries-track{ position:relative; overflow-x:auto; padding-bottom:12px; }
+  .disc-line{
+    position:absolute; top:8px; left:0; right:0; height:1px;
+    background:linear-gradient(to right, transparent, rgba(201,161,74,0.3) 10%, rgba(201,161,74,0.3) 90%, transparent);
+  }
+  .disc-items{
+    display:flex; justify-content:space-between; gap:20px;
+    min-width:640px;
+  }
+  .disc-item{
+    flex:1; display:flex; flex-direction:column; align-items:center;
+    text-align:center; gap:12px; padding-top:2px;
+  }
+  .disc-dot{
+    width:14px; height:14px; border-radius:50%;
+    border:1.5px solid rgba(201,161,74,0.6);
+    background:var(--black); z-index:1; flex-shrink:0;
+    transition:background 0.3s, border-color 0.3s;
+  }
+  .disc-dot.active{ background:var(--gold); border-color:var(--gold); box-shadow:0 0 14px rgba(201,161,74,0.55); }
+  .disc-item:hover .disc-dot{ background:var(--gold-light); border-color:var(--gold-light); }
+  .disc-year{ font-family:var(--font-label); font-size:13px; color:var(--gold-light); letter-spacing:0.06em; }
+  .disc-label{ font-size:13px; line-height:1.55; color:rgba(248,245,239,0.55); font-weight:300; max-width:160px; }
+
+  /* ===================== ARTIFACT CARDS ===================== */
+  .artifact-row{
+    padding:0 clamp(24px,7vw,110px) 0;
+    border-top:1px solid rgba(255,255,255,0.06);
+    padding-top:80px;
+    margin-bottom:100px;
+  }
+  .artifact-cards{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:2px;
+  }
+  @media(max-width:860px){ .artifact-cards{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:480px){ .artifact-cards{ grid-template-columns:1fr; } }
+  .artifact-card{
+    padding:36px 28px;
+    background:rgba(248,245,239,0.025);
+    border:1px solid rgba(255,255,255,0.07);
+    display:flex; flex-direction:column; gap:16px;
+    transition:background 0.3s, border-color 0.3s;
+  }
+  .artifact-card:hover{
+    background:rgba(201,161,74,0.06); border-color:rgba(201,161,74,0.22);
+  }
+  .artifact-icon{ display:flex; align-items:center; justify-content:center; opacity:0.85; }
+  .artifact-name{
+    font-family:var(--font-display); font-size:20px; color:var(--ivory); font-weight:400;
+  }
+  .artifact-desc{ font-size:13px; line-height:1.65; color:rgba(248,245,239,0.55); font-weight:300; }
+
+  /* ===================== NEXT ERA BRIDGE ===================== */
+  .next-era-bridge{
+    padding:80px clamp(24px,7vw,110px);
+    border-top:1px solid rgba(255,255,255,0.06);
+    display:flex; align-items:center; justify-content:space-between; gap:40px;
+    background:linear-gradient(to bottom, transparent, rgba(201,161,74,0.04));
+  }
+  @media(max-width:680px){ .next-era-bridge{ flex-direction:column; text-align:center; } }
+  .bridge-eyebrow{
+    font-family:var(--font-label); font-size:11px; letter-spacing:0.3em;
+    color:rgba(201,161,74,0.7); text-transform:uppercase; margin-bottom:10px;
+  }
+  .bridge-title{
+    font-family:var(--font-display); font-size:clamp(32px,5vw,52px);
+    color:var(--ivory); font-weight:500; margin-bottom:12px;
+  }
+  .bridge-sub{ font-size:15px; line-height:1.7; color:rgba(248,245,239,0.6); font-weight:300; max-width:500px; margin-bottom:22px; }
+  .bridge-coming{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 20px; border-radius:999px;
+    border:1px solid rgba(201,161,74,0.25);
+    font-size:12px; letter-spacing:0.1em; color:rgba(248,245,239,0.45);
+  }
+  .bridge-deco{ flex-shrink:0; opacity:0.55; }
+  @media(max-width:860px){ .bridge-deco{ display:none; } }
+
+  /* ===================== VEDIC ERA OVERRIDES ===================== */
+  .chapter-line--vedic{
+    background:linear-gradient(to right, transparent, rgba(212,118,42,0.35), transparent);
+  }
+  .chapter-label--vedic{ color:rgba(212,118,42,0.7); }
+
+  .era--vedic{ background:linear-gradient(to bottom, transparent 0%, rgba(50,18,5,0.25) 30%, rgba(50,18,5,0.15) 70%, transparent 100%); }
+
+  .era-hero--vedic{ justify-content:flex-start; }
+
+  .vedic-fire-bg{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:flex-end;
+    pointer-events:none; z-index:0; overflow:hidden;
+  }
+  .fire-svg{
+    width:min(600px,70vw); height:min(600px,70vw);
+    opacity:0.9;
+    animation:firePulse 8s ease-in-out infinite alternate;
+  }
+  @keyframes firePulse{
+    from{ transform:scale(1) translateY(0); }
+    to{ transform:scale(1.04) translateY(-12px); }
+  }
+  @media(prefers-reduced-motion:reduce){ .fire-svg{ animation:none; } }
+
+  .stat-card--vedic:hover{
+    background:rgba(212,118,42,0.06);
+    border-color:rgba(212,118,42,0.22);
+  }
+  .site-card--vedic:hover, .site-card--vedic:focus{
+    background:rgba(212,118,42,0.07); border-color:rgba(212,118,42,0.22);
+  }
+  .artifact-card--vedic:hover{
+    background:rgba(212,118,42,0.06); border-color:rgba(212,118,42,0.22);
+  }
+
+  .bridge-cta{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:12px 24px; border-radius:999px;
+    border:1px solid rgba(201,161,74,0.3);
+    font-size:13px; letter-spacing:0.08em;
+    color:var(--gold-light); cursor:pointer;
+    transition:background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    font-family:var(--font-label);
+  }
+  .bridge-cta:hover{
+    background:rgba(201,161,74,0.1);
+    border-color:rgba(201,161,74,0.5);
+    box-shadow:0 0 24px rgba(201,161,74,0.15);
+  }
+
+  /* GSAP visibility safety — elements animated by ScrollTrigger
+     start invisible via JS; this ensures they're visible if JS hasn't run */
+  .stat-card, .site-card, .artifact-card, .disc-item,
+  .era-col-text, .era-col-sites, .pull-quote,
+  .chapter-entry, .era-period, .era-title, .era-tagline,
+  .next-era-bridge, .bridge-deco, .fire-svg {
+    will-change: transform, opacity;
+  }
+
+  /* ===================== MAHAJANAPADAS ERA ===================== */
+  .era--maha{
+    background:linear-gradient(to bottom,transparent 0%,rgba(5,18,35,0.3) 30%,rgba(5,18,35,0.2) 70%,transparent 100%);
+  }
+  .maha-deco-bg{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:flex-end;
+    pointer-events:none; z-index:0; overflow:hidden;
+  }
+  .maha-wheel-bg{
+    width:min(700px,75vw); height:min(700px,75vw);
+    opacity:1; animation:slowSpin 120s linear infinite;
+  }
+  @keyframes slowSpin{ to{ transform:rotate(360deg); } }
+  @media(prefers-reduced-motion:reduce){ .maha-wheel-bg{ animation:none; } }
+
+  /* ===================== CREDIT TAG ===================== */
+  .credit-tag{
+    position:fixed; bottom:18px; right:18px; z-index:50;
+    font-size:11px; letter-spacing:0.04em; color:rgba(248,245,239,0.4);
+    background:rgba(248,245,239,0.04); border:1px solid rgba(255,255,255,0.07);
+    border-radius:999px; padding:7px 14px; backdrop-filter:blur(10px);
+  }
+  @media (max-width:680px){ .credit-tag{ display:none; } }
+</style>
+</head>
+<body>
+
+  <div class="stars" id="stars" aria-hidden="true"></div>
+  <div class="fog" aria-hidden="true"><span class="f1"></span><span class="f2"></span><span class="f3"></span></div>
+  <div class="light-rays" aria-hidden="true"></div>
+  <canvas id="bg-canvas" role="img" aria-label="A slowly rotating golden Ashoka Chakra, the 24-spoke wheel of dharma, drifting in golden light."></canvas>
+
+
+  <header class="nav-wrap">
+    <nav class="glass-nav" aria-label="Primary">
+      <div class="nav-mark">
+        <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <circle cx="24" cy="24" r="20" stroke="#C9A14A" stroke-width="1.4"/>
+          <circle cx="24" cy="24" r="3" fill="#C9A14A"/>
+          <g stroke="#C9A14A" stroke-width="1.1">
+            <line x1="24" y1="4" x2="24" y2="44"/><line x1="4" y1="24" x2="44" y2="24"/>
+            <line x1="9.5" y1="9.5" x2="38.5" y2="38.5"/><line x1="9.5" y1="38.5" x2="38.5" y2="9.5"/>
+            <line x1="24" y1="6" x2="24" y2="42" transform="rotate(22.5 24 24)"/>
+            <line x1="24" y1="6" x2="24" y2="42" transform="rotate(67.5 24 24)"/>
+            <line x1="24" y1="6" x2="24" y2="42" transform="rotate(112.5 24 24)"/>
+            <line x1="24" y1="6" x2="24" y2="42" transform="rotate(157.5 24 24)"/>
+          </g>
+        </svg>
+        <span>Chronicles of India</span>
+      </div>
+      <ul class="nav-links">
+        <li><a href="#" id="navTimeline">Timeline</a></li>
+        <li><a href="#" id="navEras">Eras</a></li>
+        <li><a href="#" id="navMap">Map</a></li>
+        <li><a href="#" id="navSearch">Search</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="hero">
+      <span class="sanskrit-float s1" aria-hidden="true">सत्यमेव जयते</span>
+      <span class="sanskrit-float s2" aria-hidden="true">वसुधैव कुटुम्बकम्</span>
+
+      <div class="hero-content">
+        <p class="eyebrow">इतिहास · HISTORY, REIMAGINED</p>
+        <h1 class="hero-title">
+          <span class="line-mask"><span class="line">The Chronicles</span></span>
+          <span class="line-mask"><span class="line">of India</span></span>
+        </h1>
+        <p class="hero-sub">From the cities of the Indus to the republic of today — one civilization, four thousand years deep. Scroll to begin.</p>
+        <button class="cta-glass" id="ctaBtn" type="button">
+          <span>Begin the Journey</span>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div class="scroll-cue" aria-hidden="true">
+        <span>Scroll</span>
+        <div class="scroll-line"></div>
+      </div>
+    </section>
+
+    <!-- ===== CHAPTER TRANSITION STRIP ===== -->
+    <div class="chapter-entry" id="chapterEntry" aria-hidden="true">
+      <div class="chapter-line"></div>
+      <span class="chapter-label">Chapter I</span>
+      <div class="chapter-line"></div>
+    </div>
+
+    <!-- ===== ERA: INDUS VALLEY ===== -->
+    <section class="era" id="era-indus" data-era="indus">
+
+      <!-- Cinematic era hero -->
+      <div class="era-hero">
+        <div class="era-hero-copy">
+          <p class="era-period">c. 3300 – 1300 BCE</p>
+          <h2 class="era-title">The Indus Valley<br>Civilization</h2>
+          <p class="era-tagline">The world's first urban planners, forgotten beneath the earth for three thousand years.</p>
+        </div>
+        <div class="era-hero-decoration" aria-hidden="true">
+          <span class="deco-script">सिन्धु घाटी सभ्यता</span>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-num">5+</span>
+          <span class="stat-label">Million km² at peak extent</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">1,500+</span>
+          <span class="stat-label">Sites discovered across the subcontinent</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">400+</span>
+          <span class="stat-label">Undeciphered script symbols</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num">700</span>
+          <span class="stat-label">Years of urban continuity at Mohenjo-daro</span>
+        </div>
+      </div>
+
+      <!-- Era body: two-column narrative + sites -->
+      <div class="era-body">
+        <div class="era-col-text">
+          <p class="era-section-eyebrow">Origins</p>
+          <h3 class="era-section-title">Before Pharaohs, there was the Indus</h3>
+          <p class="era-prose">When Mesopotamia was still organising its first cities and Egypt was raising its earliest dynasties, a third great civilisation bloomed in silence across the floodplains of the Indus and Ghaggar-Hakra rivers. At its height around 2500 BCE, it was the largest Bronze Age civilisation on earth — larger than Egypt and Mesopotamia combined.</p>
+          <p class="era-prose">Its cities were a marvel of civic order. Streets ran in cardinal grids. Homes had private bathing rooms. Every city shared a remarkably uniform system of weights and measures, suggesting either a powerful central authority or a deeply ingrained commercial culture. Terracotta seals stamped with animal motifs and an undeciphered script traded all the way to Mesopotamia, evidence of maritime commerce across the Arabian Sea.</p>
+
+          <div class="pull-quote">
+            <span class="pull-bar"></span>
+            <blockquote>"They had the best drainage system in the Bronze Age world. That is not a small achievement — it took Europe two thousand more years to match it."</blockquote>
+            <cite>— Prof. Shereen Ratnagar, archaeologist</cite>
+          </div>
+
+          <p class="era-prose">And then — silence. Around 1900 BCE the great cities begin to decline. Populations shrink. Trade routes contract. The script stops appearing. Whether climate shift dried the Ghaggar-Hakra river, whether internal political collapse happened, or whether migration reshaped the population, remains one of archaeology's most debated questions.</p>
+        </div>
+
+        <div class="era-col-sites">
+          <p class="era-section-eyebrow">Key Sites</p>
+          <div class="sites-list">
+            <div class="site-card" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" aria-hidden="true">⬡</span>
+                <div>
+                  <h4 class="site-name">Mohenjo-daro</h4>
+                  <span class="site-loc">Sindh, modern-day Pakistan</span>
+                </div>
+              </div>
+              <p class="site-desc">The "Mound of the Dead" — home to the Great Bath, a vast public water reservoir used for ritual cleansing, and multi-storey brick homes with private wells.</p>
+            </div>
+            <div class="site-card" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" aria-hidden="true">⬡</span>
+                <div>
+                  <h4 class="site-name">Harappa</h4>
+                  <span class="site-loc">Punjab, modern-day Pakistan</span>
+                </div>
+              </div>
+              <p class="site-desc">The first site discovered in 1921. Its granaries, worker quarters, and assembly halls suggest a complex economy and stratified society.</p>
+            </div>
+            <div class="site-card" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" aria-hidden="true">⬡</span>
+                <div>
+                  <h4 class="site-name">Lothal</h4>
+                  <span class="site-loc">Gujarat, India</span>
+                </div>
+              </div>
+              <p class="site-desc">India's earliest known dockyard — a remarkable tidal dock that let ships load and unload goods bound for Mesopotamia and the Persian Gulf.</p>
+            </div>
+            <div class="site-card" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" aria-hidden="true">⬡</span>
+                <div>
+                  <h4 class="site-name">Dholavira</h4>
+                  <span class="site-loc">Kutch, Gujarat, India</span>
+                </div>
+              </div>
+              <p class="site-desc">The most spectacular Indian site — a walled city with an elaborate water harvesting system of reservoirs and channels, extraordinary given its desert location.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discoveries timeline (mini horizontal) -->
+      <div class="discoveries">
+        <p class="era-section-eyebrow" style="text-align:center; margin-bottom:48px;">Timeline of the Era</p>
+        <div class="discoveries-track">
+          <div class="disc-line"></div>
+          <div class="disc-items">
+            <div class="disc-item">
+              <div class="disc-dot"></div>
+              <span class="disc-year">3300 BCE</span>
+              <p class="disc-label">Early Harappan phase. First settlements in Balochistan and Sindh.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot"></div>
+              <span class="disc-year">2800 BCE</span>
+              <p class="disc-label">Mature Harappan phase begins. Cities take their grid-planned form.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot"></div>
+              <span class="disc-year">2500 BCE</span>
+              <p class="disc-label">Peak civilisation. Trade with Mesopotamia confirmed by seals found at Ur.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot"></div>
+              <span class="disc-year">2000 BCE</span>
+              <p class="disc-label">Gradual urban decline. Ghaggar-Hakra river system contracts.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot active"></div>
+              <span class="disc-year">1300 BCE</span>
+              <p class="disc-label">Late Harappan cultures persist in Gujarat and Punjab. Cities fade.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Artifact gallery row -->
+      <div class="artifact-row">
+        <p class="era-section-eyebrow" style="text-align:center; margin-bottom:40px;">Artifacts of the Age</p>
+        <div class="artifact-cards">
+          <div class="artifact-card">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <rect x="10" y="10" width="60" height="60" rx="6" stroke="#C9A14A" stroke-width="1.4"/>
+                <ellipse cx="40" cy="30" rx="12" ry="8" stroke="#C9A14A" stroke-width="1.1"/>
+                <line x1="28" y1="30" x2="28" y2="42" stroke="#C9A14A" stroke-width="1.1"/>
+                <line x1="40" y1="38" x2="40" y2="52" stroke="#C9A14A" stroke-width="1.1"/>
+                <line x1="52" y1="30" x2="52" y2="42" stroke="#C9A14A" stroke-width="1.1"/>
+                <rect x="16" y="56" width="48" height="7" rx="2" stroke="#C9A14A" stroke-width="1"/>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Pashupati Seal</h5>
+            <p class="artifact-desc">Proto-Shiva deity seated in lotus position, surrounded by animals. Mohenjo-daro, c. 2500 BCE.</p>
+          </div>
+          <div class="artifact-card">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <path d="M40 15 C30 15 22 22 20 32 C18 44 28 56 40 65 C52 56 62 44 60 32 C58 22 50 15 40 15Z" stroke="#C9A14A" stroke-width="1.4"/>
+                <circle cx="40" cy="38" r="8" stroke="#C9A14A" stroke-width="1.1"/>
+                <path d="M32 38 C32 28 48 28 48 38" stroke="#C9A14A" stroke-width="1" stroke-dasharray="3 2"/>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Dancing Girl</h5>
+            <p class="artifact-desc">Bronze statuette of a young woman in confident pose. One of the finest Bronze Age figurines ever found. c. 2500 BCE.</p>
+          </div>
+          <div class="artifact-card">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <rect x="18" y="35" width="44" height="24" rx="3" stroke="#C9A14A" stroke-width="1.4"/>
+                <rect x="24" y="42" width="8" height="10" rx="1" stroke="#C9A14A" stroke-width="1"/>
+                <rect x="36" y="42" width="8" height="10" rx="1" stroke="#C9A14A" stroke-width="1"/>
+                <rect x="48" y="42" width="8" height="10" rx="1" stroke="#C9A14A" stroke-width="1"/>
+                <path d="M22 35 L22 25 C22 20 30 17 40 17 C50 17 58 20 58 25 L58 35" stroke="#C9A14A" stroke-width="1.4"/>
+                <rect x="26" y="18" width="28" height="14" rx="2" stroke="#C9A14A" stroke-width="1" stroke-dasharray="2 2"/>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Lothal Dockyard</h5>
+            <p class="artifact-desc">The world's earliest known tidal dock. Baked-brick walls, sluice gates, and orientation to tidal rhythms of the Sabarmati estuary.</p>
+          </div>
+          <div class="artifact-card">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <circle cx="40" cy="40" r="22" stroke="#C9A14A" stroke-width="1.4"/>
+                <circle cx="40" cy="40" r="14" stroke="#C9A14A" stroke-width="1" stroke-dasharray="3 2"/>
+                <line x1="40" y1="18" x2="40" y2="62" stroke="#C9A14A" stroke-width="0.8"/>
+                <line x1="18" y1="40" x2="62" y2="40" stroke="#C9A14A" stroke-width="0.8"/>
+                <circle cx="40" cy="40" r="3" fill="#C9A14A"/>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Standard Weights</h5>
+            <p class="artifact-desc">Cuboid chert weights in a consistent binary ratio (1:2:4:8:16…). Identical across 1,500 km, implying a unified system of trade regulation.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chapter divider into next era -->
+      <div class="next-era-bridge">
+        <div class="bridge-text">
+          <p class="bridge-eyebrow">What came next</p>
+          <h3 class="bridge-title">The Vedic Age</h3>
+          <p class="bridge-sub">c. 1500 – 600 BCE · Hymns to fire. Chariot-riding peoples. The birth of Sanskrit. The Rig-Veda composed on the banks of the Saraswati.</p>
+          <div class="bridge-cta" onclick="document.getElementById('era-vedic').scrollIntoView({behavior:'smooth'})">
+            <span>Enter Chapter II ↓</span>
+          </div>
+        </div>
+        <div class="bridge-deco" aria-hidden="true">
+          <svg viewBox="0 0 200 200" fill="none" width="160" height="160">
+            <path d="M100 170 C60 140 40 110 60 80 C70 60 80 70 85 55 C90 40 95 20 100 15 C105 20 110 40 115 55 C120 70 130 60 140 80 C160 110 140 140 100 170Z" stroke="#C9A14A" stroke-width="1.2" fill="none"/>
+            <path d="M100 155 C75 130 65 105 80 85 C87 74 92 82 95 68 C98 55 99 38 100 30 C101 38 102 55 105 68 C108 82 113 74 120 85 C135 105 125 130 100 155Z" stroke="#E0C079" stroke-width="0.8" opacity="0.5" fill="none"/>
+          </svg>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===== CHAPTER II ENTRY ===== -->
+    <div class="chapter-entry chapter-entry--vedic">
+      <div class="chapter-line chapter-line--vedic"></div>
+      <span class="chapter-label chapter-label--vedic">Chapter II</span>
+      <div class="chapter-line chapter-line--vedic"></div>
+    </div>
+
+    <!-- ===== ERA: VEDIC AGE ===== -->
+    <section class="era era--vedic" id="era-vedic" data-era="vedic">
+
+      <div class="era-hero era-hero--vedic">
+        <div class="vedic-fire-bg" aria-hidden="true">
+          <svg viewBox="0 0 600 600" fill="none" class="fire-svg">
+            <path d="M300 560 C180 500 100 400 140 280 C165 195 200 220 215 170 C230 120 240 55 300 20 C360 55 370 120 385 170 C400 220 435 195 460 280 C500 400 420 500 300 560Z" stroke="rgba(200,120,30,0.22)" stroke-width="1.5" fill="none"/>
+            <path d="M300 520 C200 465 135 370 168 265 C188 192 215 210 228 165 C242 118 250 60 300 32 C350 60 358 118 372 165 C385 210 412 192 432 265 C465 370 400 465 300 520Z" stroke="rgba(220,150,40,0.15)" stroke-width="1" fill="none"/>
+            <path d="M300 480 C220 432 168 345 195 252 C212 190 232 202 243 162 C255 118 260 68 300 44 C340 68 345 118 357 162 C368 202 388 190 405 252 C432 345 380 432 300 480Z" stroke="rgba(240,180,60,0.1)" stroke-width="0.8" fill="none"/>
+            <!-- Om symbol suggestion -->
+            <circle cx="300" cy="300" r="80" stroke="rgba(201,161,74,0.08)" stroke-width="1"/>
+            <text x="300" y="318" text-anchor="middle" font-size="72" fill="rgba(201,161,74,0.12)" font-family="serif">ॐ</text>
+          </svg>
+        </div>
+        <div class="era-hero-copy">
+          <p class="era-period" style="color:var(--vedic-accent)">c. 1500 – 600 BCE</p>
+          <h2 class="era-title">The Vedic Age</h2>
+          <p class="era-tagline">Fire altars. Hymns to the cosmos. The oldest living literature on earth — composed not in cities, but beneath open skies.</p>
+        </div>
+        <div class="era-hero-decoration" aria-hidden="true">
+          <span class="deco-script" style="color:rgba(210,120,30,0.3)">ॐ तत् सत्</span>
+        </div>
+      </div>
+
+      <!-- Vedic stat cards -->
+      <div class="stats-row stats-row--vedic">
+        <div class="stat-card stat-card--vedic">
+          <span class="stat-num" style="color:var(--vedic-accent)">10,552</span>
+          <span class="stat-label">Verses in the Rig-Veda, the world's oldest surviving scripture</span>
+        </div>
+        <div class="stat-card stat-card--vedic">
+          <span class="stat-num" style="color:var(--vedic-accent)">4</span>
+          <span class="stat-label">Sacred Vedas — Rig, Sama, Yajur, Atharva — composed over centuries</span>
+        </div>
+        <div class="stat-card stat-card--vedic">
+          <span class="stat-num" style="color:var(--vedic-accent)">1,028</span>
+          <span class="stat-label">Hymns in the Rig-Veda, many addressed to Agni, Indra, and Varuna</span>
+        </div>
+        <div class="stat-card stat-card--vedic">
+          <span class="stat-num" style="color:var(--vedic-accent)">900 BCE</span>
+          <span class="stat-label">Approximate date of the Upanishads — India's first philosophy</span>
+        </div>
+      </div>
+
+      <!-- Era body -->
+      <div class="era-body">
+        <div class="era-col-text">
+          <p class="era-section-eyebrow" style="color:var(--vedic-accent)">Origins</p>
+          <h3 class="era-section-title">Hymns Composed Before Writing</h3>
+          <p class="era-prose">As the Indus cities fell silent, a new culture took root across the subcontinent's river plains. The Vedic people left no cities, no planned streets. What they left was language — Sanskrit — and a body of oral literature so precisely memorised that it survived four thousand years without a single written word changing.</p>
+          <p class="era-prose">The Rig-Veda is humanity's oldest surviving religious text. Its 10,552 verses, composed in a sophisticated poetic metre, hymn the forces of nature as conscious beings: Agni the fire god who carries offerings to heaven; Indra the storm god who splits mountains; Varuna who watches oaths from the sky. These were not primitive imaginings — they were sophisticated philosophical attempts to describe the laws governing the cosmos.</p>
+
+          <div class="pull-quote pull-quote--vedic">
+            <span class="pull-bar" style="background:linear-gradient(to bottom, var(--vedic-accent), #8B4513)"></span>
+            <blockquote>"Truth is one; the sages call it by many names."</blockquote>
+            <cite>— Rig-Veda I.164.46 (c. 1200 BCE)</cite>
+          </div>
+
+          <p class="era-prose">By the later Vedic period, philosophical inquiry had moved inward. The Upanishads — composed between 900 and 600 BCE — turned from fire altars toward the nature of consciousness itself: the concept of Brahman (universal reality), Atman (the individual self), and their ultimate identity. These texts laid the foundation for all subsequent Indian philosophy, from Buddhism to Advaita Vedanta.</p>
+        </div>
+
+        <div class="era-col-sites">
+          <p class="era-section-eyebrow" style="color:var(--vedic-accent)">The Four Vedas</p>
+          <div class="sites-list">
+            <div class="site-card site-card--vedic" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" style="color:var(--vedic-accent)" aria-hidden="true">॰</span>
+                <div>
+                  <h4 class="site-name">Rig-Veda</h4>
+                  <span class="site-loc">c. 1500 – 1200 BCE · Hymns of Praise</span>
+                </div>
+              </div>
+              <p class="site-desc">The oldest of the four Vedas. 1,028 hymns in ten books (Mandalas), praising deities and asking for prosperity, strength, and wisdom. The Gayatri Mantra appears here.</p>
+            </div>
+            <div class="site-card site-card--vedic" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" style="color:var(--vedic-accent)" aria-hidden="true">॰</span>
+                <div>
+                  <h4 class="site-name">Sama-Veda</h4>
+                  <span class="site-loc">c. 1200 BCE · Liturgy of Melody</span>
+                </div>
+              </div>
+              <p class="site-desc">Verses from the Rig-Veda arranged for musical chanting during soma sacrifices. Considered the origin of Indian classical music — seven fundamental notes derived from Vedic chanting.</p>
+            </div>
+            <div class="site-card site-card--vedic" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" style="color:var(--vedic-accent)" aria-hidden="true">॰</span>
+                <div>
+                  <h4 class="site-name">Yajur-Veda</h4>
+                  <span class="site-loc">c. 1100 BCE · Ritual Formulae</span>
+                </div>
+              </div>
+              <p class="site-desc">Prose mantras for fire sacrifices (yajnas). Contains detailed instructions for constructing fire altars — some requiring bricks laid in specific geometric patterns that anticipate later mathematical thinking.</p>
+            </div>
+            <div class="site-card site-card--vedic" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" style="color:var(--vedic-accent)" aria-hidden="true">॰</span>
+                <div>
+                  <h4 class="site-name">Atharva-Veda</h4>
+                  <span class="site-loc">c. 1000 BCE · Spells & Healing</span>
+                </div>
+              </div>
+              <p class="site-desc">The most human of the Vedas — hymns for healing illness, protecting crops, and navigating everyday life. Contains early references to medicinal plants that form the basis of Ayurveda.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vedic timeline -->
+      <div class="discoveries">
+        <p class="era-section-eyebrow" style="text-align:center; margin-bottom:48px; color:var(--vedic-accent)">Timeline of the Era</p>
+        <div class="discoveries-track">
+          <div class="disc-line" style="background:linear-gradient(to right,transparent,rgba(200,120,30,0.35) 10%,rgba(200,120,30,0.35) 90%,transparent)"></div>
+          <div class="disc-items">
+            <div class="disc-item">
+              <div class="disc-dot" style="border-color:rgba(200,120,30,0.6)"></div>
+              <span class="disc-year" style="color:var(--vedic-accent)">1500 BCE</span>
+              <p class="disc-label">Early Vedic period begins. Rig-Veda hymns composed on the Punjab plains.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot" style="border-color:rgba(200,120,30,0.6)"></div>
+              <span class="disc-year" style="color:var(--vedic-accent)">1200 BCE</span>
+              <p class="disc-label">Sama-Veda and early Yajur-Veda compiled. Ritual culture expands eastward.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot" style="border-color:rgba(200,120,30,0.6)"></div>
+              <span class="disc-year" style="color:var(--vedic-accent)">1000 BCE</span>
+              <p class="disc-label">Later Vedic age. Atharva-Veda. Iron tools spread. Kingdoms form in the Gangetic plains.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot" style="border-color:rgba(200,120,30,0.6)"></div>
+              <span class="disc-year" style="color:var(--vedic-accent)">900 BCE</span>
+              <p class="disc-label">Brahmanas composed — ritual commentaries. Painted Grey Ware culture flourishes.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot active" style="background:var(--vedic-accent); border-color:var(--vedic-accent); box-shadow:0 0 14px rgba(200,120,30,0.6)"></div>
+              <span class="disc-year" style="color:var(--vedic-accent)">600 BCE</span>
+              <p class="disc-label">Upanishads complete. Mahajanapadas (great kingdoms) rise. Stage set for the Buddha.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Artifact cards -->
+      <div class="artifact-row">
+        <p class="era-section-eyebrow" style="text-align:center; margin-bottom:40px; color:var(--vedic-accent)">Artifacts &amp; Concepts of the Age</p>
+        <div class="artifact-cards">
+          <div class="artifact-card artifact-card--vedic">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <!-- Fire altar / yajna kund -->
+                <path d="M20 60 L30 30 L40 50 L50 22 L60 60Z" stroke="#D4762A" stroke-width="1.3" fill="none"/>
+                <line x1="15" y1="62" x2="65" y2="62" stroke="#D4762A" stroke-width="1.2"/>
+                <path d="M34 50 C34 40 46 40 46 30" stroke="#D4762A" stroke-width="0.8" stroke-dasharray="2 2"/>
+                <circle cx="40" cy="20" r="4" stroke="#D4762A" stroke-width="1"/>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Yajna — The Fire Ritual</h5>
+            <p class="artifact-desc">Sacred fire sacrifices that formed the heart of Vedic religion. Priests (Brahmins) fed offerings of ghee, grain, and soma to Agni, who carried them to the gods.</p>
+          </div>
+          <div class="artifact-card artifact-card--vedic">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <!-- Om symbol -->
+                <text x="40" y="52" text-anchor="middle" font-size="44" fill="#D4762A" stroke="none" font-family="serif">ॐ</text>
+              </svg>
+            </div>
+            <h5 class="artifact-name">The Gayatri Mantra</h5>
+            <p class="artifact-desc">Twenty-four syllables from Rig-Veda III.62.10 — a prayer to the sun as the source of wisdom. Still recited daily by hundreds of millions. Composed c. 1200 BCE.</p>
+          </div>
+          <div class="artifact-card artifact-card--vedic">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <!-- Chariot wheel -->
+                <circle cx="40" cy="40" r="25" stroke="#D4762A" stroke-width="1.3"/>
+                <circle cx="40" cy="40" r="6" stroke="#D4762A" stroke-width="1.1"/>
+                <g stroke="#D4762A" stroke-width="1">
+                  <line x1="40" y1="15" x2="40" y2="34"/><line x1="40" y1="46" x2="40" y2="65"/>
+                  <line x1="15" y1="40" x2="34" y2="40"/><line x1="46" y1="40" x2="65" y2="40"/>
+                  <line x1="22" y1="22" x2="35" y2="35"/><line x1="45" y1="45" x2="58" y2="58"/>
+                  <line x1="58" y1="22" x2="45" y2="35"/><line x1="35" y1="45" x2="22" y2="58"/>
+                </g>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Iron Age & the Chariot</h5>
+            <p class="artifact-desc">Iron technology arrived in India around 1000 BCE, transforming agriculture and warfare. Chariot-riding warriors (Kshatriyas) became the dominant military class described in Vedic hymns.</p>
+          </div>
+          <div class="artifact-card artifact-card--vedic">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <!-- Manuscript / scroll -->
+                <rect x="18" y="22" width="44" height="36" rx="3" stroke="#D4762A" stroke-width="1.3"/>
+                <line x1="26" y1="33" x2="54" y2="33" stroke="#D4762A" stroke-width="0.9"/>
+                <line x1="26" y1="40" x2="54" y2="40" stroke="#D4762A" stroke-width="0.9"/>
+                <line x1="26" y1="47" x2="44" y2="47" stroke="#D4762A" stroke-width="0.9"/>
+                <path d="M18 22 C18 18 14 18 14 22 L14 58 C14 62 18 62 18 58" stroke="#D4762A" stroke-width="1"/>
+                <path d="M62 22 C62 18 66 18 66 22 L66 58 C66 62 62 62 62 58" stroke="#D4762A" stroke-width="1"/>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Painted Grey Ware</h5>
+            <p class="artifact-desc">Distinctive grey pottery with painted geometric patterns found across the Gangetic plains, c. 1200–600 BCE. Archaeological evidence of Vedic culture's eastward expansion from the Punjab.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bridge to Chapter III -->
+      <div class="next-era-bridge">
+        <div class="bridge-text">
+          <p class="bridge-eyebrow">What came next</p>
+          <h3 class="bridge-title">The Mahajanapadas</h3>
+          <p class="bridge-sub">c. 600 – 300 BCE · Sixteen great kingdoms rise across north India. Gautama Buddha walks the roads of Magadha. Mahavira founds Jainism. Panini writes the world's first formal grammar.</p>
+          <div class="bridge-cta" onclick="document.getElementById('era-mahajanapadas').scrollIntoView({behavior:'smooth'})">
+            <span>Enter Chapter III ↓</span>
+          </div>
+        </div>
+        <div class="bridge-deco" aria-hidden="true">
+          <svg viewBox="0 0 200 200" fill="none" width="160" height="160">
+            <!-- Dharma wheel suggestion -->
+            <circle cx="100" cy="100" r="70" stroke="rgba(201,161,74,0.25)" stroke-width="1.2"/>
+            <circle cx="100" cy="100" r="18" stroke="rgba(201,161,74,0.3)" stroke-width="1.2"/>
+            <g stroke="rgba(201,161,74,0.2)" stroke-width="1">
+              <line x1="100" y1="30" x2="100" y2="82"/><line x1="100" y1="118" x2="100" y2="170"/>
+              <line x1="30" y1="100" x2="82" y2="100"/><line x1="118" y1="100" x2="170" y2="100"/>
+              <line x1="51" y1="51" x2="87" y2="87"/><line x1="113" y1="113" x2="149" y2="149"/>
+              <line x1="149" y1="51" x2="113" y2="87"/><line x1="87" y1="113" x2="51" y2="149"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===== CHAPTER III ENTRY ===== -->
+    <div class="chapter-entry chapter-entry--maha">
+      <div class="chapter-line" style="background:linear-gradient(to right,transparent,rgba(30,100,160,0.35),transparent)"></div>
+      <span class="chapter-label" style="color:rgba(80,160,220,0.7)">Chapter III</span>
+      <div class="chapter-line" style="background:linear-gradient(to right,transparent,rgba(30,100,160,0.35),transparent)"></div>
+    </div>
+
+    <!-- ===== ERA: MAHAJANAPADAS ===== -->
+    <section class="era era--maha" id="era-mahajanapadas" data-era="mahajanapadas">
+
+      <div class="era-hero">
+        <!-- Dharma wheel background decoration -->
+        <div class="maha-deco-bg" aria-hidden="true">
+          <svg viewBox="0 0 700 700" fill="none" class="maha-wheel-bg">
+            <circle cx="350" cy="350" r="300" stroke="rgba(80,160,220,0.07)" stroke-width="1.5"/>
+            <circle cx="350" cy="350" r="240" stroke="rgba(80,160,220,0.05)" stroke-width="1"/>
+            <circle cx="350" cy="350" r="60"  stroke="rgba(80,160,220,0.09)" stroke-width="1.2"/>
+            <g stroke="rgba(80,160,220,0.06)" stroke-width="1">
+              <line x1="350" y1="50"  x2="350" y2="290"/><line x1="350" y1="410" x2="350" y2="650"/>
+              <line x1="50"  y1="350" x2="290" y2="350"/><line x1="410" y1="350" x2="650" y2="350"/>
+              <line x1="138" y1="138" x2="308" y2="308"/><line x1="392" y1="392" x2="562" y2="562"/>
+              <line x1="562" y1="138" x2="392" y2="308"/><line x1="308" y1="392" x2="138" y2="562"/>
+              <line x1="350" y1="50"  x2="350" y2="290" transform="rotate(22.5 350 350)"/>
+              <line x1="350" y1="50"  x2="350" y2="290" transform="rotate(67.5 350 350)"/>
+              <line x1="350" y1="410" x2="350" y2="650" transform="rotate(22.5 350 350)"/>
+              <line x1="350" y1="410" x2="350" y2="650" transform="rotate(67.5 350 350)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="era-hero-copy">
+          <p class="era-period" style="color:var(--maha-accent)">c. 600 – 321 BCE</p>
+          <h2 class="era-title">The Mahajanapadas</h2>
+          <p class="era-tagline">Sixteen great republics and kingdoms. A prince renounces his throne under a bodhi tree. A grammarian writes the world's first formal grammar. The age of awakening.</p>
+        </div>
+        <div class="era-hero-decoration" aria-hidden="true">
+          <span class="deco-script" style="color:rgba(80,160,220,0.22)">धम्मो सरणं गच्छामि</span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-num" style="color:var(--maha-accent)">16</span>
+          <span class="stat-label">Great republics and kingdoms (Mahajanapadas) across north India</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" style="color:var(--maha-accent)">528 BCE</span>
+          <span class="stat-label">Traditional date of the Buddha's enlightenment at Bodh Gaya, Bihar</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" style="color:var(--maha-accent)">3,959</span>
+          <span class="stat-label">Rules of Sanskrit grammar defined by Panini in the Ashtadhyayi, c. 400 BCE</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-num" style="color:var(--maha-accent)">321 BCE</span>
+          <span class="stat-label">Chandragupta Maurya unifies north India, ending the Mahajanapada era</span>
+        </div>
+      </div>
+
+      <!-- Era body -->
+      <div class="era-body">
+        <div class="era-col-text">
+          <p class="era-section-eyebrow" style="color:var(--maha-accent)">The Age of Republics</p>
+          <h3 class="era-section-title">When India Invented Democracy</h3>
+          <p class="era-prose">Between 600 and 300 BCE, the Gangetic plains of north India became one of the most intellectually productive regions on earth. Sixteen major states — some kingdoms, some oligarchic republics called <em>ganas</em> — competed for power, trade, and ideas. The Vajjian Confederacy, with its capital at Vaishali, may have been the world's earliest republican government.</p>
+          <p class="era-prose">In the kingdom of Magadha, a young prince named Siddhartha Gautama abandoned his palace, sat beneath a pipal tree at what is now Bodh Gaya, and emerged as the Buddha — the Awakened One. His teachings on suffering, impermanence, and liberation would spread across Asia over the next thousand years, reaching China, Japan, Korea, and Southeast Asia.</p>
+
+          <div class="pull-quote">
+            <span class="pull-bar" style="background:linear-gradient(to bottom,var(--maha-accent),#1a4a7a)"></span>
+            <blockquote>"Do not believe in anything simply because you have heard it. Test it, experience it, and if it leads to benefit for all, accept it."</blockquote>
+            <cite>— Attributed to Gautama Buddha (c. 563 – 483 BCE)</cite>
+          </div>
+
+          <p class="era-prose">This was also the age of Mahavira, who refined and codified Jainism — a philosophy of radical non-violence (ahimsa) that would directly influence Gandhi twenty-five centuries later. And of Panini, whose Ashtadhyayi described Sanskrit grammar with a precision that modern linguists compare to a formal computer language — 3,959 rules, zero ambiguity.</p>
+        </div>
+
+        <div class="era-col-sites">
+          <p class="era-section-eyebrow" style="color:var(--maha-accent)">The Sixteen Kingdoms</p>
+          <div class="sites-list">
+            <div class="site-card" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" style="color:var(--maha-accent)" aria-hidden="true">◈</span>
+                <div>
+                  <h4 class="site-name">Magadha</h4>
+                  <span class="site-loc">Bihar — The Dominant Power</span>
+                </div>
+              </div>
+              <p class="site-desc">The most powerful of the sixteen states. Its capital Rajagriha, later Pataliputra, became the seed from which the Mauryan Empire would grow. Both the Buddha and Mahavira taught here.</p>
+            </div>
+            <div class="site-card" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" style="color:var(--maha-accent)" aria-hidden="true">◈</span>
+                <div>
+                  <h4 class="site-name">Vajji Confederacy</h4>
+                  <span class="site-loc">Bihar — World's First Republic</span>
+                </div>
+              </div>
+              <p class="site-desc">A confederation of clans governed by an elected assembly at Vaishali. Citizens voted, debated in a public hall, and rotated positions of authority — a system of governance Rome wouldn't attempt for another two centuries.</p>
+            </div>
+            <div class="site-card" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" style="color:var(--maha-accent)" aria-hidden="true">◈</span>
+                <div>
+                  <h4 class="site-name">Kosala</h4>
+                  <span class="site-loc">Uttar Pradesh — Kingdom of Rama</span>
+                </div>
+              </div>
+              <p class="site-desc">Ruled from Shravasti. Legendary homeland of Rama of the Ramayana. The Buddha spent many monsoon retreats in Kosala's Jetavana grove, and King Prasenajit became one of his chief patrons.</p>
+            </div>
+            <div class="site-card" tabindex="0">
+              <div class="site-header">
+                <span class="site-icon" style="color:var(--maha-accent)" aria-hidden="true">◈</span>
+                <div>
+                  <h4 class="site-name">Gandhara</h4>
+                  <span class="site-loc">Northwest — Gateway to the World</span>
+                </div>
+              </div>
+              <p class="site-desc">Centred on modern Peshawar and Taxila. Where Persian, Greek, and Indian cultures met and merged. Taxila's university attracted students from across Asia — and later, Alexander the Great's army.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="discoveries">
+        <p class="era-section-eyebrow" style="text-align:center;margin-bottom:48px;color:var(--maha-accent)">Timeline of the Era</p>
+        <div class="discoveries-track">
+          <div class="disc-line" style="background:linear-gradient(to right,transparent,rgba(80,160,220,0.3) 10%,rgba(80,160,220,0.3) 90%,transparent)"></div>
+          <div class="disc-items">
+            <div class="disc-item">
+              <div class="disc-dot" style="border-color:rgba(80,160,220,0.6)"></div>
+              <span class="disc-year" style="color:var(--maha-accent)">600 BCE</span>
+              <p class="disc-label">Sixteen Mahajanapadas established across north India.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot" style="border-color:rgba(80,160,220,0.6)"></div>
+              <span class="disc-year" style="color:var(--maha-accent)">563 BCE</span>
+              <p class="disc-label">Birth of Siddhartha Gautama in Lumbini (modern Nepal).</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot" style="border-color:rgba(80,160,220,0.6)"></div>
+              <span class="disc-year" style="color:var(--maha-accent)">528 BCE</span>
+              <p class="disc-label">The Buddha's enlightenment at Bodh Gaya. First sermon at Sarnath.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot" style="border-color:rgba(80,160,220,0.6)"></div>
+              <span class="disc-year" style="color:var(--maha-accent)">400 BCE</span>
+              <p class="disc-label">Panini writes the Ashtadhyayi — the world's first formal grammar.</p>
+            </div>
+            <div class="disc-item">
+              <div class="disc-dot active" style="background:var(--maha-accent);border-color:var(--maha-accent);box-shadow:0 0 14px rgba(80,160,220,0.5)"></div>
+              <span class="disc-year" style="color:var(--maha-accent)">321 BCE</span>
+              <p class="disc-label">Chandragupta Maurya, advised by Chanakya, seizes Pataliputra.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key figures row -->
+      <div class="artifact-row">
+        <p class="era-section-eyebrow" style="text-align:center;margin-bottom:40px;color:var(--maha-accent)">Figures Who Changed the World</p>
+        <div class="artifact-cards">
+          <div class="artifact-card">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <circle cx="40" cy="28" r="12" stroke="#50A0DC" stroke-width="1.3"/>
+                <path d="M22 68 C22 50 58 50 58 68" stroke="#50A0DC" stroke-width="1.3"/>
+                <circle cx="40" cy="28" r="6" stroke="#50A0DC" stroke-width="0.8" stroke-dasharray="2 2"/>
+                <!-- Enlightenment rays -->
+                <line x1="40" y1="12" x2="40" y2="6"  stroke="#50A0DC" stroke-width="0.8"/>
+                <line x1="52" y1="16" x2="56" y2="12" stroke="#50A0DC" stroke-width="0.8"/>
+                <line x1="28" y1="16" x2="24" y2="12" stroke="#50A0DC" stroke-width="0.8"/>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Gautama Buddha</h5>
+            <p class="artifact-desc">c. 563–483 BCE. Born a prince of the Shakya clan, he renounced wealth to seek the end of suffering. His Middle Path — between indulgence and asceticism — became the foundation of Buddhism.</p>
+          </div>
+          <div class="artifact-card">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <!-- Mahavira - hand with circle (ahimsa symbol) -->
+                <path d="M28 60 C24 50 22 38 26 28 C30 18 38 16 40 16 C42 16 50 18 54 28 C58 38 56 50 52 60 Z" stroke="#50A0DC" stroke-width="1.3"/>
+                <circle cx="40" cy="42" r="8" stroke="#50A0DC" stroke-width="1"/>
+                <text x="40" y="46" text-anchor="middle" font-size="10" fill="#50A0DC" font-family="serif">अ</text>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Mahavira</h5>
+            <p class="artifact-desc">c. 599–527 BCE. The 24th Tirthankara of Jainism. Taught absolute non-violence (ahimsa), non-possessiveness, and truth. His philosophy directly shaped Gandhi's concept of Satyagraha, 2,500 years later.</p>
+          </div>
+          <div class="artifact-card">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <!-- Panini - grammar tablet -->
+                <rect x="16" y="18" width="48" height="44" rx="3" stroke="#50A0DC" stroke-width="1.3"/>
+                <line x1="24" y1="30" x2="56" y2="30" stroke="#50A0DC" stroke-width="0.8"/>
+                <line x1="24" y1="38" x2="56" y2="38" stroke="#50A0DC" stroke-width="0.8"/>
+                <line x1="24" y1="46" x2="56" y2="46" stroke="#50A0DC" stroke-width="0.8"/>
+                <line x1="24" y1="54" x2="44" y2="54" stroke="#50A0DC" stroke-width="0.8"/>
+                <text x="22" y="29" font-size="7" fill="#50A0DC" font-family="serif">अ इ उ ण्</text>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Panini</h5>
+            <p class="artifact-desc">c. 400 BCE. Linguist from Gandhara whose Ashtadhyayi described Sanskrit with 3,959 rules of unmatched precision. Modern computer scientists recognise it as the first formal generative grammar.</p>
+          </div>
+          <div class="artifact-card">
+            <div class="artifact-icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+                <!-- Chanakya - scroll/strategy -->
+                <path d="M20 20 L20 60 Q40 55 60 60 L60 20 Q40 25 20 20Z" stroke="#50A0DC" stroke-width="1.3"/>
+                <line x1="28" y1="32" x2="52" y2="30" stroke="#50A0DC" stroke-width="0.8"/>
+                <line x1="28" y1="40" x2="52" y2="38" stroke="#50A0DC" stroke-width="0.8"/>
+                <line x1="28" y1="48" x2="46" y2="46" stroke="#50A0DC" stroke-width="0.8"/>
+                <circle cx="56" cy="18" r="5" stroke="#50A0DC" stroke-width="1"/>
+              </svg>
+            </div>
+            <h5 class="artifact-name">Chanakya</h5>
+            <p class="artifact-desc">c. 350–275 BCE. Philosopher, economist, and strategist. His Arthashastra — a treatise on statecraft — outlined taxation, diplomacy, espionage, and military strategy with a clarity that rivals Machiavelli by 1,800 years.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bridge to Chapter IV -->
+      <div class="next-era-bridge">
+        <div class="bridge-text">
+          <p class="bridge-eyebrow">What came next</p>
+          <h3 class="bridge-title">The Mauryan Empire</h3>
+          <p class="bridge-sub">c. 321 – 185 BCE · A teenage king with a plan and a brilliant advisor unites the subcontinent for the first time. Ashoka witnesses a battlefield and turns an empire toward dharma.</p>
+          <div class="bridge-cta" onclick="document.getElementById('era-maurya').scrollIntoView({behavior:'smooth'})">
+            <span>Enter Chapter IV ↓</span>
+          </div>
+        </div>
+        <div class="bridge-deco" aria-hidden="true">
+          <svg viewBox="0 0 200 200" fill="none" width="160" height="160">
+            <!-- Ashoka pillar suggestion -->
+            <rect x="90" y="40" width="20" height="120" rx="2" stroke="rgba(201,161,74,0.25)" stroke-width="1.2"/>
+            <ellipse cx="100" cy="40" rx="22" ry="12" stroke="rgba(201,161,74,0.25)" stroke-width="1.2"/>
+            <path d="M78 40 Q100 25 122 40" stroke="rgba(201,161,74,0.2)" stroke-width="1" fill="none"/>
+            <!-- Lion capital suggestion -->
+            <circle cx="100" cy="32" r="10" stroke="rgba(201,161,74,0.3)" stroke-width="1"/>
+            <circle cx="100" cy="32" r="5"  stroke="rgba(201,161,74,0.2)" stroke-width="0.8"/>
+          </svg>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===== PLACEHOLDER: CH IV (MAURYAN EMPIRE) ===== -->
+    <div id="era-maurya" style="height:1px"></div>
+
+  </main>
+
+  <div class="credit-tag">Crafted by Soumya · @_soumya.ngl_</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  /* ===================== STARS ===================== */
+  function buildStars(){
+    var el = document.getElementById('stars');
+    var shadows = [];
+    var count = 140;
+    for(var i=0;i<count;i++){
+      var x = (Math.random()*100).toFixed(2);
+      var y = (Math.random()*100).toFixed(2);
+      var o = (Math.random()*0.6+0.2).toFixed(2);
+      shadows.push(x + 'vw ' + y + 'vh 0 rgba(248,245,239,' + o + ')');
+    }
+    el.style.boxShadow = shadows.join(',');
+  }
+  buildStars();
+
+  /* ===================== THREE.JS: ASHOKA CHAKRA ===================== */
+  var scene, camera, renderer, chakraGroup, dustPoints, clock;
+  var canvas = document.getElementById('bg-canvas');
+  var isMobile = window.innerWidth < 680;
+
+  function buildChakra(){
+    var group = new THREE.Group();
+
+    var goldMat = new THREE.MeshStandardMaterial({
+      color: 0xB8924A, metalness: 0.08, roughness: 0.82,
+      emissive: 0x000000, emissiveIntensity: 0
+    });
+    var darkMat = new THREE.MeshStandardMaterial({
+      color: 0x6B4A28, metalness: 0.05, roughness: 0.88,
+      emissive: 0x000000, emissiveIntensity: 0
+    });
+
+    // ── OUTER DECORATIVE RIM (double ring) ──
+    var outerRim = new THREE.Mesh(new THREE.TorusGeometry(3.5, 0.13, 20, 120), goldMat);
+    group.add(outerRim);
+    var innerRim = new THREE.Mesh(new THREE.TorusGeometry(3.15, 0.07, 16, 100), darkMat);
+    group.add(innerRim);
+    // Beaded detail ring on outer rim
+    var beadCount = 64;
+    for(var b = 0; b < beadCount; b++){
+      var ang = (b / beadCount) * Math.PI * 2;
+      var bead = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), goldMat);
+      bead.position.set(Math.cos(ang) * 3.5, Math.sin(ang) * 3.5, 0.12);
+      group.add(bead);
+    }
+
+    // ── 8 MAIN THICK SPOKES (Konark style — tapered with diamond bosses) ──
+    for(var i = 0; i < 8; i++){
+      var angle = (i / 8) * Math.PI * 2;
+      var cos = Math.cos(angle), sin = Math.sin(angle);
+      var spokeGroup = new THREE.Group();
+
+      // Main spoke shaft — thicker, slightly tapered
+      var spoke = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.12, 2.55, 12), goldMat);
+      spoke.position.y = 0.82 + 2.55 / 2;
+      spokeGroup.add(spoke);
+
+      // Diamond boss at mid-spoke
+      var boss = new THREE.Mesh(new THREE.OctahedronGeometry(0.22, 0), goldMat);
+      boss.position.y = 0.82 + 1.0;
+      boss.rotation.z = Math.PI / 4;
+      spokeGroup.add(boss);
+
+      // Small circular rosette at spoke-rim junction
+      var rosette = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.055, 12, 32), goldMat);
+      rosette.position.y = 0.82 + 2.3;
+      spokeGroup.add(rosette);
+      var rosetteCenter = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), darkMat);
+      rosetteCenter.position.y = 0.82 + 2.3;
+      spokeGroup.add(rosetteCenter);
+
+      // Small boss near hub
+      var hubBoss = new THREE.Mesh(new THREE.OctahedronGeometry(0.13, 0), darkMat);
+      hubBoss.position.y = 0.82 + 0.22;
+      hubBoss.rotation.z = Math.PI / 4;
+      spokeGroup.add(hubBoss);
+
+      spokeGroup.rotation.z = -angle + Math.PI / 2;
+      group.add(spokeGroup);
+    }
+
+    // ── 8 THIN SECONDARY SPOKES (between mains) ──
+    for(var j = 0; j < 8; j++){
+      var a2 = ((j + 0.5) / 8) * Math.PI * 2;
+      var sg = new THREE.Group();
+      var thinSpoke = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 2.62, 8), darkMat);
+      thinSpoke.position.y = 0.78 + 2.62 / 2;
+      sg.add(thinSpoke);
+
+      // Small rosette at rim end of thin spoke
+      var tr = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.035, 10, 24), darkMat);
+      tr.position.y = 0.78 + 2.38;
+      sg.add(tr);
+
+      sg.rotation.z = -a2 + Math.PI / 2;
+      group.add(sg);
+    }
+
+    // ── HUB ASSEMBLY ──
+    // Outer hub ring
+    var hubRing = new THREE.Mesh(new THREE.TorusGeometry(0.76, 0.09, 16, 60), goldMat);
+    group.add(hubRing);
+    // Inner hub disc
+    var hubDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.1, 48), darkMat);
+    hubDisc.rotation.x = Math.PI / 2;
+    group.add(hubDisc);
+    // Central raised boss
+    var hubCenter = new THREE.Mesh(new THREE.SphereGeometry(0.32, 24, 24), goldMat);
+    group.add(hubCenter);
+    // 8 small petals around hub center
+    for(var p = 0; p < 8; p++){
+      var pa = (p / 8) * Math.PI * 2;
+      var petal = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 10), goldMat);
+      petal.position.set(Math.cos(pa) * 0.5, Math.sin(pa) * 0.5, 0.04);
+      group.add(petal);
+    }
+    // Tiny center jewel
+    var jewel = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 16), new THREE.MeshStandardMaterial({
+      color: 0xA07830, metalness: 0.05, roughness: 0.85
+    }));
+    jewel.position.z = 0.3;
+    group.add(jewel);
+
+    group.rotation.x = 0.12;
+    return group;
+  }
+
+  function buildDust(){
+    var count = reduceMotion ? 120 : (isMobile ? 260 : 450);
+    var positions = new Float32Array(count * 3);
+    for(var i=0;i<count;i++){
+      var r = 6 + Math.random() * 10;
+      var theta = Math.random() * Math.PI * 2;
+      var y = (Math.random() - 0.5) * 10;
+      positions[i*3]   = Math.cos(theta) * r;
+      positions[i*3+1] = y;
+      positions[i*3+2] = Math.sin(theta) * r - 4;
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    var mat = new THREE.PointsMaterial({
+      color: 0xE0C079, size: 0.05, transparent: true, opacity: 0.55,
+      blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    return new THREE.Points(geo, mat);
+  }
+
+  function initThree(){
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, isMobile ? 11 : 14);
+
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    scene.add(new THREE.AmbientLight(0x2a2010, 2.2));
+    var keyLight = new THREE.DirectionalLight(0xE8D4A0, 2.8);
+    keyLight.position.set(4, 5, 8);
+    scene.add(keyLight);
+    var rimLight = new THREE.DirectionalLight(0xC9A14A, 1.2);
+    rimLight.position.set(-6, -2, -4);
+    scene.add(rimLight);
+    var fillLight = new THREE.PointLight(0xD4B870, 1.8, 40);
+    fillLight.position.set(0, 5, 7);
+    scene.add(fillLight);
+
+    chakraGroup = buildChakra();
+    chakraGroup.scale.setScalar(0.52);
+    scene.add(chakraGroup);
+
+    dustPoints = buildDust();
+    scene.add(dustPoints);
+
+    clock = new THREE.Clock();
+    window.addEventListener('resize', onResize);
+
+    gsap.to(camera.position, {
+      z: isMobile ? 8.5 : (reduceMotion ? 9.5 : 7.5),
+      duration: 3, ease: 'power2.out', delay: 0.3
+    });
+
+    animate();
+  }
+
+  function onResize(){
+    isMobile = window.innerWidth < 680;
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  function animate(){
+    requestAnimationFrame(animate);
+    if(document.hidden) return;
+    var delta = clock.getDelta();
+    if(!reduceMotion){
+      chakraGroup.rotation.z += delta * 0.18;
+      dustPoints.rotation.y += delta * 0.02;
+      var pos = dustPoints.geometry.attributes.position;
+      for(var i=0;i<pos.count;i++){
+        pos.array[i*3+1] += delta * 0.15;
+        if(pos.array[i*3+1] > 5) pos.array[i*3+1] = -5;
+      }
+      pos.needsUpdate = true;
+    }
+    renderer.render(scene, camera);
+  }
+
+  initThree();
+
+  /* ===================== INTRO TIMELINE (GSAP) ===================== */
+  var introDur = reduceMotion ? 0.01 : 1;
+  var tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl.from('.glass-nav', { y: -40, opacity: 0, duration: introDur })
+    .from('.eyebrow', { y: 20, opacity: 0, duration: introDur * 0.8 }, '-=0.4')
+    .from('.hero-title .line', { yPercent: 120, opacity: 0, duration: introDur, stagger: 0.15 }, '-=0.5')
+    .from('.hero-sub', { y: 20, opacity: 0, duration: introDur * 0.8 }, '-=0.6')
+    .from('.cta-glass', { y: 20, opacity: 0, scale: 0.95, duration: introDur * 0.8 }, '-=0.6')
+    .from('.scroll-cue', { opacity: 0, duration: introDur }, '-=0.3')
+    .from('.sanskrit-float', { opacity: 0, duration: introDur * 1.5, stagger: 0.3 }, '-=0.8');
+
+  /* ===================== SCROLL CHOREOGRAPHY ===================== */
+  gsap.registerPlugin(ScrollTrigger);
+
+  ScrollTrigger.create({
+    trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true,
+    onUpdate: function(self){
+      var p = self.progress;
+      gsap.set('.hero-content', { opacity: 1 - p, y: p * -40 });
+      gsap.set('.scroll-cue', { opacity: 1 - p * 2 });
+      if(!reduceMotion){
+        camera.position.z = (isMobile ? 8.5 : 7.5) + p * 4;
+        chakraGroup.scale.setScalar(0.52 * (1 - p * 0.25));
+      }
+    }
+  });
+
+  /* ===================== CTA SCROLL ===================== */
+  document.getElementById('ctaBtn').addEventListener('click', function(){
+    document.getElementById('chapterEntry').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+  });
+
+  /* ===================== SCROLL REVEALS (IntersectionObserver) ===================== */
+  // All reveal elements start visible in CSS — IO adds a class to trigger the animation
+  // This means fast scrollers NEVER see blank content
+  var revealCSS = document.createElement('style');
+  revealCSS.textContent = `
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.reveal--left  { transform: translateX(-28px); }
+    .reveal.reveal--right { transform: translateX(28px); }
+    .reveal.reveal--scale { transform: scale(0.92); }
+    .reveal.is-visible {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  `;
+  document.head.appendChild(revealCSS);
+
+  // Tag every element that should reveal
+  var revealMap = [
+    { sel: '.chapter-entry',                       cls: '' },
+    { sel: '.era-period',                          cls: '' },
+    { sel: '.era-title',                           cls: '' },
+    { sel: '.era-tagline',                         cls: '' },
+    { sel: '.stat-card',                           cls: '' },
+    { sel: '.era-col-text',                        cls: 'reveal--left' },
+    { sel: '.era-col-sites',                       cls: 'reveal--right' },
+    { sel: '.site-card',                           cls: '' },
+    { sel: '.pull-quote',                          cls: 'reveal--left' },
+    { sel: '.disc-item',                           cls: '' },
+    { sel: '.artifact-card',                       cls: '' },
+    { sel: '.next-era-bridge',                     cls: '' },
+    { sel: '.bridge-deco',                         cls: 'reveal--scale' },
+    { sel: '.fire-svg',                            cls: 'reveal--scale' },
+    { sel: '.chapter-entry--vedic',                cls: '' },
+  ];
+
+  revealMap.forEach(function(item){
+    document.querySelectorAll(item.sel).forEach(function(el, i){
+      el.classList.add('reveal');
+      if(item.cls) el.classList.add(item.cls);
+      // Stagger siblings by index
+      el.style.transitionDelay = (i * 0.08) + 's';
+    });
+  });
+
+  if(reduceMotion){
+    // skip animation entirely for users who prefer reduced motion
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('is-visible'); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target); // fire once, never reset
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  }
+
+
+  if(!reduceMotion && finePointer){
+    var cta = document.getElementById('ctaBtn');
+    cta.addEventListener('mousemove', function(e){
+      var r = cta.getBoundingClientRect();
+      var x = e.clientX - r.left - r.width / 2;
+      var y = e.clientY - r.top - r.height / 2;
+      gsap.to(cta, { x: x * 0.25, y: y * 0.4, duration: 0.4, ease: 'power2.out' });
+    });
+    cta.addEventListener('mouseleave', function(){
+      gsap.to(cta, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1,0.4)' });
+    });
+  }
+
+
+})();
+</script>
+</body>
+</html>
